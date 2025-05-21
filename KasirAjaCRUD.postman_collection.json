@@ -1,0 +1,500 @@
+{
+	"info": {
+		"_postman_id": "aa5dd698-c524-4446-ab3f-56072ec5d3bf",
+		"name": "Kasir Aja CRUD",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44381839",
+		"_collection_link": "https://reni-4547189.postman.co/workspace/Reni's-Workspace~48a88060-afd7-4631-8a45-4ebd6905b8fc/collection/44381839-aa5dd698-c524-4446-ab3f-56072ec5d3bf?action=share&source=collection_link&creator=44381839"
+	},
+	"item": [
+		{
+			"name": "Authentications",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Authentication berhasil ditambahkan\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Assert refreshToken and accessToken should not undefined\", function () {\r",
+							"    var responseData = pm.response.json().data; // Fixed ReferenceError: response is not defined\r",
+							"    pm.expect(responseData).to.have.property('accessToken');\r",
+							"    pm.expect(responseData).to.have.property('refreshToken');\r",
+							"    pm.expect(responseData.accessToken).not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"fixedAccessToken\", pm.response.json().data.accessToken); // Fixed setting fixedAccessToken\r",
+							"pm.environment.set(\"fixedRefreshToken\", pm.response.json().data.refreshToken); // Fixed setting fixedRefreshToken\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test_admin@example.com\",\r\n    \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/authentications",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"authentications"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json();",
+							"",
+							"pm.environment.set(\"userId\", response.data?.userId);",
+							"pm.environment.set(\"userName\", response.data?.name);",
+							"",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response body contains userId and name\", function () {",
+							"    pm.expect(response.message).to.eql(\"User berhasil ditambahkan\");",
+							"    pm.expect(response.data).to.have.property(\"userId\");",
+							"    pm.expect(response.data).to.have.property(\"name\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{fixedAccessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{    \r\n    \"name\": \"{{$randomUserName}}\",\r\n    \"email\":\"{{$randomEmail}}\", \r\n    \"password\": \"123456\"\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json();",
+							"const userId = pm.environment.get(\"userId\")",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Verify userId value\", function () {",
+							"    pm.expect(response.data?.user.id).to.eql(userId);",
+							"});",
+							"",
+							"pm.test(\"Assert the user property\", function () {",
+							"    pm.expect(response.data?.user).to.have.property(\"id\");",
+							"    pm.expect(response.data?.user).to.have.property(\"name\");",
+							"    pm.expect(response.data?.user).to.have.property(\"email\");",
+							"    pm.expect(response.data?.user).to.have.property(\"role\");",
+							"})",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{fixedAccessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/users/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{fixedAccessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"User Baru Edit\", \r\n    \"email\": \"user_baru_edit@example.com\", \r\n    \"password\": \"newpassword123\"\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{fixedAccessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/users/{{userId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Category",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json(),",
+							"jsonData = response.data;",
+							"",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.environment.set(\"category_id\", jsonData.categoryId);",
+							"",
+							"pm.test(\"Success message should be 'Category berhasil ditambahkan'\", function () {",
+							"    pm.expect(response.message).to.eql('Category berhasil ditambahkan');",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{fixedAccessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"{{$randomProduct}}\",\r\n    \"description\": \"{{$randomProduct}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/categories",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read Category",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"const response = pm.response.json();",
+							"",
+							"pm.test(\"Category name and description should not undefined\", function () {",
+							"    pm.expect(response.data.category).to.have.property('name');",
+							"    pm.expect(response.data.category).to.have.property('description');",
+							"    pm.expect(response.data.category).not.be.undefined;",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{fixedAccessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/categories/{{category_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"categories",
+						"{{category_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Category",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{fixedAccessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\" : \"{{$randomProductName}}\",\r\n    \"description\": \"{{$randomProduct}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/categories/{{category_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"categories",
+						"{{category_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Category",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{fixedAccessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/categories/{{category_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"categories",
+						"{{category_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
