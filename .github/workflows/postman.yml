@@ -44,4 +44,4 @@ jobs:
       - name: rsync connection
         run: rsync -e "ssh -o StrictHostKeyChecking=no" -arvc * ${{secrets.USERDEV}}@${{secrets.SERVERDEV}}:/root/postman-kasiraja-github/
       - name: running command
-        run: ssh ${{secrets.USERDEV}}@${{secrets.SERVERDEV}} "id"
+        run: ssh ${{secrets.USERDEV}}@${{secrets.SERVERDEV}} "ls -la"
